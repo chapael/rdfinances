@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { Input } from "../../components/Forms/Input";
 import { InputForm } from "../../components/Forms/InputForm";
 import { Button } from "../../components/Forms/Button";
 import { TransactionTypeButton } from "../../components/Forms/TransactionTypeButton";
@@ -40,6 +40,8 @@ export function Register() {
     name: 'Categoria'
   });
 
+  const dataKey = '@rdfinances:transaction';
+
   const{
     control,
     handleSubmit,
@@ -60,7 +62,7 @@ export function Register() {
     setCategoryModalOpen(true);
   }
 
-  function handleRegister(form: FormData){
+  async function handleRegister(form: FormData){
     if(!transactionType)
     return Alert.alert('Selecione o tipo da transação');
 
@@ -74,8 +76,24 @@ export function Register() {
       transactionType,
       category: category.key
     }
+
+    try {
+      await AsyncStorage.setItem(dataKey, JSON.stringify(data));
+
+
+
+
+    } catch (error) {
+      Alert.alert("Não foi possivel salvar");
+    }
   }
 
+  useEffect(() => {
+    async function loadData(){
+      const data = await AsyncStorage.getItem(dataKey);
+    }
+    loadData();
+  }, []);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
